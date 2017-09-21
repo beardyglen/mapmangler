@@ -6,7 +6,8 @@ import sys
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
-import Image
+from PIL import Image
+from PIL import ImageEnhance
 
 if len(sys.argv) != 5:
 	print("Usage: "+sys.argv[0]+" [lat] [lon] [zoom] [threshhold]")
@@ -42,6 +43,10 @@ except:
 	print("Something terrible happened.")
 	exit(1)
 
+cropImage = Image.open("output_sat.png")
+croppedImage = cropImage.crop((0,0,cropImage.size[0],cropImage.size[1]-20))
+croppedImage.save("output_sat.png")
+
 
 try:
 	#mapImage = cv2.imread('output_map.png')
@@ -50,7 +55,10 @@ except:
 	print("Couldn't open the map image.")
 	exit(1)
 
+ 
 
+##contrast = ImageEnhance.Contrast(satImage)
+##contrast.enhance(2).show()
 
 # TESTY TESTINGTONS FROM HERE ON
 
@@ -80,8 +88,14 @@ contours, hierarchy = cv2.findContours(threshold,cv2.RETR_TREE,cv2.CHAIN_APPROX_
 
 print(str(len(contours))+" contours found.")
 
-cv2.drawContours(satImage,contours,-1,(0,0,255),-1)
-cv2.imshow("Map With Contours Added ("+str(lat)+','+str(lon)+")", satImage)
-cv2.waitKey()
+background = Image.new("RGB", (croppedImage.size[0],croppedImage.size[1]), (0,0,0) )
+background.save("background.png")
+
+cvbg = cv2.imread('background.png')
+
+cv2.drawContours(cvbg,contours,-1,(0,0,255),-1)
+#cv2.imshow("Map With Contours Added ("+str(lat)+','+str(lon)+")", cvbg)
+cv2.imwrite("1.png",cvbg)
+#cv2.waitKey()
 
 exit(0)
